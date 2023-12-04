@@ -62,9 +62,9 @@ void groupbyThread(
             std::unordered_set<int> completed_branches) {
     // Sort by string length in descending order
     // 是否保留排序操作有待考量
-    std::sort(thread_names.begin(), thread_names.end(), [](const std::string& a, const std::string& b) {
-        return a.length() > b.length();
-        });
+    // std::sort(thread_names.begin(), thread_names.end(), [](const std::string& a, const std::string& b) {
+    //     return a.length() > b.length();
+    //     });
 
     Trie trie;
 
