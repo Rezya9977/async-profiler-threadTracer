@@ -48,8 +48,9 @@ std::string getJavaThreadState (jint state) {
             return "WAITING";
         case JVMTI_JAVA_LANG_THREAD_STATE_TIMED_WAITING:
             return "TIMED_WAITING";
+        default:
+            return "UNKNOWN";
     }
-
 }
 
 void groupbyThread(
