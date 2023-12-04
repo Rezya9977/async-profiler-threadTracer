@@ -133,27 +133,32 @@ void groupbyThread(
         result["Others:"] = std::vector<std::string>(all_thread_names_set.begin(), all_thread_names_set.end());
     }
 
-    //// Print the result 这是C++17写法
-    //for (const auto& [groupName, group] : result) {
+    // // Print the result 这是C++17写法
+    // for (const auto& [groupName, group] : result) {
     //    std::cout << groupName << std::endl;
     //    for (const std::string& item : group) {
     //        std::cout << "  " << item << std::endl;
     //    }
     //    std::cout << std::endl;
-    //}
-    std::cout << "----------------------------start------------------------------" << std::endl;
+    // }
+    printf("----------------------------start------------------------------");
     for (auto it = result.begin(); it != result.end(); ++it) {
         const std::string& groupName = it->first;
         const std::vector<std::string>& group = it->second;
 
-        std::cout << groupName << "    totals:" << group.size() << std::endl;
+        // std::cout << groupName << "    totals:" << group.size() << std::endl;
+        printf("%s    totals: %zu\n", groupName.c_str(), group.size());
+
         for (auto itItem = group.begin(); itItem != group.end(); ++itItem) {
             const std::string& item = *itItem;
-            std::cout << "    " << item << "    " << "state:" << getJavaThreadState(thread_states[item]) << std::endl;
+            // std::cout << "    " << item << "    " << "state:" << getJavaThreadState(thread_states[item]) << std::endl;
+            printf("    %s    state: %s\n", item.c_str(), getJavaThreadState(thread_states[item]).c_str());
+
         }
-        std::cout << std::endl;
+        printf("\n");
+        // std::cout << std::endl;
     }
-    std::cout << "-----------------------------end-------------------------------" << std::endl;
+    printf("-----------------------------end-------------------------------");
 }
 
 void statisticThreads(jvmtiEnv* jvmti) {
