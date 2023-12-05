@@ -16,9 +16,21 @@ private:
         bool traversed;
 
         TrieNode() : is_end_of_string(false), traversed(false) {}
+        // 似乎不需要这个析构
+        // ~TrieNode()
+        // {
+        //     for (std::unordered_map<char, TrieNode *>::iterator it = children.begin(); it != children.end(); ++it)
+        //     {
+        //         delete it->second;
+        //     }
+        //     children.clear();
+        // }
     };
 
     TrieNode *root;
+
+    // 记录节点，提高析构速度
+    // std::vector<TrieNode *> nodes;
 
     void getAllWordsFromNode(TrieNode *node, const std::string &currentPrefix, std::vector<std::string> &result)
     {

@@ -6,8 +6,14 @@ Trie::Trie() : root(new TrieNode()) {}
 Trie::~Trie()
 {
     deleteNode(this->root);
+    // 使用迭代释放内存（未完成）
+    // for (std::vector<TrieNode*>::iterator it = this->nodes.begin(); it != this->nodes.end(); ++it) {
+    //     delete *it;
+    // }
+    // this->nodes.clear();
 }
 
+// 递归删除节点
 void Trie::deleteNode(TrieNode *node)
 {
     if (node == NULL)
@@ -20,6 +26,7 @@ void Trie::deleteNode(TrieNode *node)
     }
     delete node;
 }
+
 Trie::TrieNode *Trie::getRoot() const
 {
     return this->root;
@@ -35,6 +42,8 @@ void Trie::insert(const std::string &word)
             node->children[ch] = new TrieNode();
         }
         node = node->children[ch];
+        // 新创建的节点放入nodes容器
+        // this->nodes.push_back(node);
     }
     node->is_end_of_string = true;
 }

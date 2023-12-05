@@ -15,10 +15,12 @@
  */
 
 /**
- * 目前效率低下，记录一下暂时能想到的优化策略
+ * 破案了，是输出的锅
+ * 去掉了在 VM 加载、初始化、卸载的时候的监测
  * TODO:
  *      1.在遍历的时候记录要删除的节点，这样应该可以提高析构的速率
  *      2.剪枝（这个太伤脑了，看什么时候状态好的时候想一想）
+ *      3.内存有问题，会一直缓慢上涨
 */
 
 #include <jvmti.h>
@@ -141,24 +143,24 @@ void groupbyThread(
     //    }
     //    std::cout << std::endl;
     // }
-    printf("----------------------------start------------------------------");
-    for (auto it = result.begin(); it != result.end(); ++it) {
-        const std::string& groupName = it->first;
-        const std::vector<std::string>& group = it->second;
+    // // printf("----------------------------start------------------------------");
+    // for (auto it = result.begin(); it != result.end(); ++it) {
+    //     const std::string& groupName = it->first;
+    //     const std::vector<std::string>& group = it->second;
 
-        // std::cout << groupName << "    totals:" << group.size() << std::endl;
-        printf("%s    totals: %zu\n", groupName.c_str(), group.size());
+    //     // std::cout << groupName << "    totals:" << group.size() << std::endl;
+    //     // printf("%s    totals: %zu\n", groupName.c_str(), group.size());
 
-        for (auto itItem = group.begin(); itItem != group.end(); ++itItem) {
-            const std::string& item = *itItem;
-            // std::cout << "    " << item << "    " << "state:" << getJavaThreadState(thread_states[item]) << std::endl;
-            printf("    %s    state: %s\n", item.c_str(), getJavaThreadState(thread_states[item]).c_str());
+    //     for (auto itItem = group.begin(); itItem != group.end(); ++itItem) {
+    //         const std::string& item = *itItem;
+    //         // std::cout << "    " << item << "    " << "state:" << getJavaThreadState(thread_states[item]) << std::endl;
+    //         // printf("    %s    state: %s\n", item.c_str(), getJavaThreadState(thread_states[item]).c_str());
 
-        }
-        printf("\n");
-        // std::cout << std::endl;
-    }
-    printf("-----------------------------end-------------------------------");
+    //     }
+    //     // printf("\n");
+    //     // std::cout << std::endl;
+    // }
+    // // printf("-----------------------------end-------------------------------");
 }
 
 void statisticThreads(jvmtiEnv* jvmti) {
@@ -202,10 +204,9 @@ void statisticThreads(jvmtiEnv* jvmti) {
     }
     //把threads_trie和thread_names传递给groupbythread函数
     groupbyThread(thread_states, thread_infos, threads_trie, thread_names, common_longest_prefix, completed_branches);
-    // 重置threads_trie和thread_names
     // *threads_trie = Trie();
-    common_longest_prefix.clear();
-    completed_branches.clear();
+    // common_longest_prefix.clear();
+    // completed_branches.clear();
     delete threads_trie;
 }
 
@@ -218,23 +219,17 @@ void trace(jvmtiEnv* jvmti) {
     jvmti->RawMonitorExit(vmtrace_lock);
 }
 
-void JNICALL VMStart(jvmtiEnv* jvmti, JNIEnv* env) {
-    trace(jvmti);
-}
+// void JNICALL VMStart(jvmtiEnv* jvmti, JNIEnv* env) {
+//     trace(jvmti);
+// }
 
-void JNICALL VMInit(jvmtiEnv* jvmti, JNIEnv* env, jthread thread) {
-    trace(jvmti);
-}
+// void JNICALL VMInit(jvmtiEnv* jvmti, JNIEnv* env, jthread thread) {
+//     trace(jvmti);
+// }
 
-void JNICALL VMDeath(jvmtiEnv* jvmti, JNIEnv* env) {
-    trace(jvmti);
-}
-
-
-void JNICALL DynamicCodeGenerated(jvmtiEnv* jvmti, const char* name,
-                                  const void* address, jint length) {
-    trace(jvmti);
-}
+// void JNICALL VMDeath(jvmtiEnv* jvmti, JNIEnv* env) {
+//     trace(jvmti);
+// }
 
 void JNICALL ThreadStart(jvmtiEnv* jvmti, JNIEnv* env, jthread thread) {
     trace(jvmti);
@@ -266,16 +261,16 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM* vm, char* options, void* reserved) {
     jvmti->AddCapabilities(&capabilities);
 
     jvmtiEventCallbacks callbacks = {0};
-    callbacks.VMStart = VMStart;
-    callbacks.VMInit = VMInit;
-    callbacks.VMDeath = VMDeath;
+    // callbacks.VMStart = VMStart;
+    // callbacks.VMInit = VMInit;
+    // callbacks.VMDeath = VMDeath;
     callbacks.ThreadStart = ThreadStart;
     callbacks.ThreadEnd = ThreadEnd;
     jvmti->SetEventCallbacks(&callbacks, sizeof(callbacks));
 
-    jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_START, NULL);
-    jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_INIT, NULL);
-    jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_DEATH, NULL);
+    // jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_START, NULL);
+    // jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_INIT, NULL);
+    // jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_VM_DEATH, NULL);
     jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_THREAD_START, NULL);
     jvmti->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_THREAD_END, NULL);
 
